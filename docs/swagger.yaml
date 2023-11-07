@@ -1,4 +1,72 @@
+basePath: /
+definitions:
+  requests.AnotherPayload:
+    properties:
+      email:
+        example: john.doe@mail.com
+        type: string
+      password:
+        example: password
+        type: string
+    type: object
+  requests.UserPayload:
+    properties:
+      email:
+        example: john.doe@mail.com
+        type: string
+      password:
+        example: password
+        type: string
+    type: object
+host: localhost:8000
 info:
   contact: {}
-paths: {}
+  description: GO API using Gin framework.
+  title: GO API Course
+  version: "1.0"
+paths:
+  /login:
+    post:
+      parameters:
+      - description: User payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requests.UserPayload'
+      - description: Another payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requests.AnotherPayload'
+      produces:
+      - application/json
+      responses: {}
+      summary: Login
+      tags:
+      - users
+  /signup:
+    post:
+      parameters:
+      - description: User payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requests.UserPayload'
+      produces:
+      - application/json
+      responses: {}
+      summary: Signup
+      tags:
+      - users
+  /validate:
+    get:
+      produces:
+      - application/json
+      responses: {}
+      summary: Validate
+      tags:
+      - users
 swagger: "2.0"

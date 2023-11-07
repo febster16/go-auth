@@ -11,9 +11,17 @@ import (
 	"github.com/febster16/go-auth/internal/models"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/jackc/pgx/v5/pgconn"
 	"golang.org/x/crypto/bcrypt"
 )
 
+// Sign Up		godoc
+//
+//	@Summary	Signup
+//	@Produce	application/json
+//	@Param		request	body	requests.UserPayload	true	"User payload"
+//	@Tags		users
+//	@Router		/signup [post]
 func Signup(c *gin.Context) {
 	var userPayload requests.UserPayload
 
@@ -33,6 +41,11 @@ func Signup(c *gin.Context) {
 	result := database.DB.Create(&user)
 
 	if result.Error != nil {
+		if result.Error.(*pgconn.PgError).Code == "23505" {
+			c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"message": "Email already exists"})
+			return
+		}
+
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Failed to create user to DB"})
 		return
 	}
@@ -40,6 +53,13 @@ func Signup(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"message": "Successfully signed up"})
 }
 
+// Log In		godoc
+//
+//	@Summary	Login
+//	@Produce	application/json
+//	@Param		request	body	requests.UserPayload	true	"User payload"
+//	@Tags		users
+//	@Router		/login [post]
 func Login(c *gin.Context) {
 	var userPayload requests.UserPayload
 
@@ -82,6 +102,12 @@ func Login(c *gin.Context) {
 
 }
 
+// Validate		godoc
+//
+//	@Summary	Validate
+//	@Produce	application/json
+//	@Tags		users
+//	@Router		/validate [get]
 func Validate(c *gin.Context) {
 	user, _ := c.Get("user")
 
