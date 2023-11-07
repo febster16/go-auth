@@ -12,5 +12,6 @@ func SetupRoutes(r *gin.Engine) {
 	r.POST("/signup", handlers.Signup)
 	r.POST("/login", handlers.Login)
 	r.GET("/validate", common.RequireAuthMiddleware, handlers.Validate)
+	r.PATCH("/change-password", handlers.ChangePassword)
 	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 }

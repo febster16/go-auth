@@ -15,6 +15,29 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/change-password": {
+            "patch": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "ChangePassword",
+                "parameters": [
+                    {
+                        "description": "Change Password payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requests.ChangePasswordPayload"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/login": {
             "post": {
                 "produces": [
@@ -32,15 +55,6 @@ const docTemplate = `{
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/requests.UserPayload"
-                        }
-                    },
-                    {
-                        "description": "Another payload",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/requests.AnotherPayload"
                         }
                     }
                 ],
@@ -84,16 +98,20 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "requests.AnotherPayload": {
+        "requests.ChangePasswordPayload": {
             "type": "object",
             "properties": {
                 "email": {
                     "type": "string",
                     "example": "john.doe@mail.com"
                 },
-                "password": {
+                "new_password": {
                     "type": "string",
-                    "example": "password"
+                    "example": "password2"
+                },
+                "old_password": {
+                    "type": "string",
+                    "example": "password1"
                 }
             }
         },

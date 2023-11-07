@@ -1,12 +1,15 @@
 basePath: /
 definitions:
-  requests.AnotherPayload:
+  requests.ChangePasswordPayload:
     properties:
       email:
         example: john.doe@mail.com
         type: string
-      password:
-        example: password
+      new_password:
+        example: password2
+        type: string
+      old_password:
+        example: password1
         type: string
     type: object
   requests.UserPayload:
@@ -25,6 +28,21 @@ info:
   title: GO API Course
   version: "1.0"
 paths:
+  /change-password:
+    patch:
+      parameters:
+      - description: Change Password payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requests.ChangePasswordPayload'
+      produces:
+      - application/json
+      responses: {}
+      summary: ChangePassword
+      tags:
+      - users
   /login:
     post:
       parameters:
@@ -34,12 +52,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/requests.UserPayload'
-      - description: Another payload
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/requests.AnotherPayload'
       produces:
       - application/json
       responses: {}

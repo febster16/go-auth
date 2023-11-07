@@ -30,7 +30,7 @@ func Signup(c *gin.Context) {
 		return
 	}
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(userPayload.Password), 10)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(userPayload.Password), bcrypt.DefaultCost)
 
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Failed to hash password"})
@@ -99,6 +99,54 @@ func Login(c *gin.Context) {
 	c.SetCookie("Authorization", tokenString, 3600*24*30, "", "", false, true)
 
 	c.JSON(http.StatusOK, gin.H{"message": "Successfully logged in"})
+
+}
+
+// Change Password		godoc
+//
+//	@Summary	ChangePassword
+//	@Produce	application/json
+//	@Param		request	body	requests.ChangePasswordPayload	true	"Change Password payload"
+//	@Tags		users
+//	@Router		/change-password [patch]
+func ChangePassword(c *gin.Context) {
+	var changePasswordPayload requests.ChangePasswordPayload
+
+	if err := c.Bind(&changePasswordPayload); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Error parsing body payload"})
+		return
+	}
+
+	var user models.User
+	result := database.DB.Find(&user, "email = ?", changePasswordPayload.Email)
+
+	if result.Error != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Invalid email or password"})
+		return
+	}
+
+	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(changePasswordPayload.OldPassword))
+
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Invalid email or password"})
+		return
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(changePasswordPayload.NewPassword), bcrypt.DefaultCost)
+
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Failed to hash password"})
+		return
+	}
+
+	updateResult := database.DB.Model(models.User{}).Where("email = ?", changePasswordPayload.Email).Updates(models.User{Password: string(hashedPassword)})
+
+	if updateResult.Error != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Failed to update user to DB"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Successfully changed password"})
 
 }
 
